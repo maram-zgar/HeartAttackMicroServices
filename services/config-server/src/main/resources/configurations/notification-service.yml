@@ -1,0 +1,31 @@
+server:
+  port: 8083
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-group-v3
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: dev.maram.notification.kafka.AppointmentEvent
+  mail:
+    host: localhost
+    port: 1025        # MailDev SMTP port
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false        # no auth needed for MailDev
+          starttls:
+            enable: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

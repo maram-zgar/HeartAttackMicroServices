@@ -1,0 +1,75 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: patient-service
+          uri: lb://PATIENT-SERVICE
+          predicates:
+            - Path=/api/v1/patients/**
+        - id: appointment-service
+          uri: lb://APPOINTMENT-SERVICE
+          predicates:
+            - Path=/api/v1/appointments/**
+        - id: medical-file-service
+          uri: lb://MEDICAL-FILE-SERVICE
+          predicates:
+            - Path=/api/v1/medicalfiles/**
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database: POSTGRESQL
+
+jwt:
+  secret: 23228fd40495884121af52c31dc584490b255c1efb8cc8f9a78e5acdf95358d8d4599cce5fb67e49dde822e6c05e8ff5c1721085ad22960393b3c5799ed09108
+  expiration: 7200000 # 2 hours
+  refresh-token:
+    expiration: 604800000 # 7 days
+  #
+  #logging:
+  #  level:
+  #    org.hibernate.SQL: DEBUG
+  #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  #    org.hibernate.tool.schema: DEBUG
+
+#          filters:
+#            - AuthFilter
+#            - name: RequestRateLimiter
+#              args:
+#                redis-rate-limiter.replenishRate: 20
+#                redis-rate-limiter.burstCapacity: 40
+#        - id: auth-service
+#          uri: lb://http:AUTH-SERVICE
+#          predicates:
+#            - Path=/auth/**
+#      default-filters:
+#        -secureHaders  # HTTP Strict Transport Security (HSTS) is a security mechanism that forces web browsers to interact with a website only via secure HTTPS connections. It eliminates HTTP-to-HTTPS redirects and protects against man-in-the-middle attacks by preventing users from bypassing certificate errors.
+#
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

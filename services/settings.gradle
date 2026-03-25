@@ -1,0 +1,11 @@
+rootProject.name = 'services'
+
+include (
+        'config-server',
+        'discovery',
+        'patient',
+        'gateway',
+        'appointment',
+        'medicalfile',
+        'notification'
+)

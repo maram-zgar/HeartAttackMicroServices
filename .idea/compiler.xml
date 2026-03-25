@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.42/8365263844ebb62398e0dc33057ba10ba472d3b8/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="services.security.main" />
+      </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.34/ec547ef414ab1d2c040118fb9c1c265ada63af14/lombok-1.18.34.jar" />
+        </processorPath>
+        <module name="services.config-server.test" />
+        <module name="services.appointment.main" />
+        <module name="services.gateway.test" />
+        <module name="services.patient.test" />
+        <module name="services.config-server.main" />
+        <module name="services.appointment.test" />
+        <module name="services.gateway.main" />
+        <module name="services.medicalfile.main" />
+        <module name="services.notification.test" />
+        <module name="services.patient.main" />
+        <module name="services.medicalfile.test" />
+        <module name="services.notification.main" />
+        <module name="services.discovery.main" />
+        <module name="services.discovery.test" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="21">
+      <module name="Appointment" target="22" />
+      <module name="Appointment.main" target="22" />
+      <module name="Appointment.test" target="22" />
+      <module name="config-server" target="21" />
+      <module name="config-server.main" target="21" />
+      <module name="config-server.test" target="21" />
+      <module name="discovery" target="21" />
+      <module name="discovery.main" target="21" />
+      <module name="discovery.test" target="21" />
+      <module name="Patient" target="21" />
+      <module name="Patient.main" target="21" />
+      <module name="Patient.test" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Gateway" options="-parameters" />
+      <module name="Gateway.main" options="-parameters" />
+      <module name="Gateway.test" options="-parameters" />
+      <module name="Patient" options="-parameters" />
+      <module name="Patient.main" options="-parameters" />
+      <module name="Patient.test" options="-parameters" />
+      <module name="config-server" options="-parameters" />
+      <module name="config-server.main" options="-parameters" />
+      <module name="config-server.test" options="-parameters" />
+      <module name="discovery" options="-parameters" />
+      <module name="discovery.main" options="-parameters" />
+      <module name="discovery.test" options="-parameters" />
+      <module name="medicalfile" options="-parameters" />
+      <module name="medicalfile.main" options="-parameters" />
+      <module name="medicalfile.test" options="-parameters" />
+      <module name="services.MedicalFile" options="-parameters" />
+      <module name="services.MedicalFile.main" options="-parameters" />
+      <module name="services.MedicalFile.test" options="-parameters" />
+      <module name="services.appointment" options="-parameters" />
+      <module name="services.appointment.main" options="-parameters" />
+      <module name="services.appointment.test" options="-parameters" />
+      <module name="services.config-server" options="-parameters" />
+      <module name="services.config-server.main" options="-parameters" />
+      <module name="services.config-server.test" options="-parameters" />
+      <module name="services.discovery" options="-parameters" />
+      <module name="services.discovery.main" options="-parameters" />
+      <module name="services.discovery.test" options="-parameters" />
+      <module name="services.gateway" options="-parameters" />
+      <module name="services.gateway.main" options="-parameters" />
+      <module name="services.gateway.test" options="-parameters" />
+      <module name="services.medicalfile" options="-parameters" />
+      <module name="services.medicalfile.main" options="-parameters" />
+      <module name="services.medicalfile.test" options="-parameters" />
+      <module name="services.notification" options="-parameters" />
+      <module name="services.notification.main" options="-parameters" />
+      <module name="services.notification.test" options="-parameters" />
+      <module name="services.patient" options="-parameters" />
+      <module name="services.patient.main" options="-parameters" />
+      <module name="services.patient.test" options="-parameters" />
+      <module name="services.security" options="-parameters" />
+      <module name="services.security.main" options="-parameters" />
+      <module name="services.security.test" options="-parameters" />
+    </option>
+  </component>
+</project>

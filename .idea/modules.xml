@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/appointment/services.appointment.main.iml" filepath="$PROJECT_DIR$/.idea/modules/appointment/services.appointment.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/config-server/services.config-server.main.iml" filepath="$PROJECT_DIR$/.idea/modules/config-server/services.config-server.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/discovery/services.discovery.main.iml" filepath="$PROJECT_DIR$/.idea/modules/discovery/services.discovery.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gateway/services.gateway.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gateway/services.gateway.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/medicalfile/services.medicalfile.main.iml" filepath="$PROJECT_DIR$/.idea/modules/medicalfile/services.medicalfile.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/notification/services.notification.main.iml" filepath="$PROJECT_DIR$/.idea/modules/notification/services.notification.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/patient/services.patient.main.iml" filepath="$PROJECT_DIR$/.idea/modules/patient/services.patient.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/security/services.security.iml" filepath="$PROJECT_DIR$/.idea/modules/security/services.security.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/security/services.security.main.iml" filepath="$PROJECT_DIR$/.idea/modules/security/services.security.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/security/services.security.test.iml" filepath="$PROJECT_DIR$/.idea/modules/security/services.security.test.iml" />
+    </modules>
+  </component>
+</project>
