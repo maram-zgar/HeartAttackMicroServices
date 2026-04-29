@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +22,18 @@ public class PatientService {
     private final PatientMapper mapper;
     private final PatientEventProducer producer;
 
-    public Long createPatient(PatientRequest request) {
+    public UUID createPatient(PatientRequest request) {
+
+        // If patient already exists by email, update instead of creating
+        var existing = repository.findByEmail(request.email());
+        if (existing.isPresent()) {
+            var patient = existing.get();
+            mergerPatient(patient, request);
+            repository.save(patient);
+            log.info("Updated existing patient: {}", patient.getEmail());
+            return patient.getId();
+        }
+
         var patient = mapper.toPatient(request);
         var saved = repository.save(patient);
 
@@ -74,18 +86,18 @@ public class PatientService {
                 .collect(Collectors.toList());
     }
 
-    public Boolean existsById(Long patientId) {
+    public Boolean existsById(UUID patientId) {
         return repository.findById(patientId)
                 .isPresent();
     }
 
-    public PatientResponse findById(Long patientId) {
+    public PatientResponse findById(UUID patientId) {
         return repository.findById(patientId)
                 .map(mapper::fromPatient)
                 .orElseThrow(() -> new PatientNotFoundException(String.format("No patient found with the id:: %s", patientId)));
     }
 
-    public void deletePatient(Long patientId) {
+    public void deletePatient(UUID patientId) {
         repository.deleteById(patientId);
     }
 }

@@ -3,15 +3,16 @@ package dev.maram.appointment.appointment;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Builder
 public record AppointmentRequest(
-        Long patientId,
+        UUID patientId,
         String patientEmail,
         String patientFirstName,
-        Long doctorId,
-        @NotNull LocalDateTime dateTime,
+        UUID doctorId,
+        @NotNull LocalDate dateTime,
         @NotNull String hospital,
         AppointmentStatus status
 ) {

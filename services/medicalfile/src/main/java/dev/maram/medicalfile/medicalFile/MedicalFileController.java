@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -24,7 +25,7 @@ public class MedicalFileController {
 
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<MedicalFileResponse> findByPatientId(
-            @PathVariable Long patientId
+            @PathVariable UUID patientId
     ) {
         return ResponseEntity.ok(service.findByPatientId(patientId));
     }

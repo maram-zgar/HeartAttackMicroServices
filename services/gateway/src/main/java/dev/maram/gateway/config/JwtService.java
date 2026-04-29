@@ -39,7 +39,9 @@ public class JwtService {
 
     // Generate a token from user details only
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("email", userDetails.getUsername());
+        return generateToken(extraClaims, userDetails);
     }
 
     // Generate a token out of extra claims and user details
@@ -53,7 +55,9 @@ public class JwtService {
     public String generateRefreshToken(
             UserDetails userDetails
     ) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("email", userDetails.getUsername());
+        return buildToken(extraClaims, userDetails, refreshExpiration);
     }
 
     private String buildToken(
@@ -81,7 +85,7 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
