@@ -132,6 +132,12 @@ public class AuthenticationService {
                     var accessToken = jwtService.generateToken(user);
                     var refreshToken = jwtService.generateRefreshToken(user);
 
+                    String refreshTokenHash = TokenHasher.hash(refreshToken);
+                    log.info("------NEW AUTHENTICATION");
+                    log.info("username {}", user.getUsername());
+                    log.info("Generated REFRESH TOKEN: {}", refreshToken);
+                    log.info("Generated REFRESH TOKEN HASH: {}", refreshTokenHash);
+
                     saveUserToken(user, accessToken);
                     openSession(user, refreshToken);
 
@@ -172,12 +178,17 @@ public class AuthenticationService {
         return Mono.fromCallable(() -> {
             final String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
+            log.info("------ REFRESH TOKEN");
+
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                log.error("Refresh failed: Missing or invalid Authorization header");
                 throw new IllegalArgumentException("Missing or invalid Authorization header");
             }
 
             String refreshToken = authHeader.substring(7).trim();
+            log.info("Incoming RefreshToken (from header): {}", refreshToken.substring(0, 20) + "...");
             String userEmail = jwtService.extractUsername(refreshToken);
+            log.info("Extracted Username from RefreshToken: {}", userEmail);
 
             if (userEmail == null) {
                 throw new IllegalArgumentException("Invalid refresh token");
@@ -186,10 +197,12 @@ public class AuthenticationService {
             var user = repository.findByEmail(userEmail).orElseThrow();
 
             if (!jwtService.isTokenValid(refreshToken, user)) {
+                log.error("Refresh failed: Token is not valid for user {}", userEmail);
                 throw new IllegalArgumentException("Refresh token is not valid");
             }
 
             String tokenHash = TokenHasher.hash(refreshToken);
+            log.info("Computed HASH of incoming token: {}", tokenHash);
             var session = sessionRepository.findByRefreshTokenHash(tokenHash)
                     .orElseThrow(() -> new IllegalArgumentException("No active session found for this refresh token"));
 
@@ -197,13 +210,23 @@ public class AuthenticationService {
                 throw new IllegalArgumentException("Session has been revoked or has expired");
             }
 
-            var accessToken = jwtService.generateToken(user);
+            // hash update
+
+            var newAccessToken = jwtService.generateToken(user);
+            var newRefreshToken = jwtService.generateRefreshToken(user);
+
+            session.setRefreshTokenHash(TokenHasher.hash(newRefreshToken));
+            session.setExpiresAt(jwtService.extractExpiration(newRefreshToken).toInstant());
+
+            sessionRepository.save(session);
+
+            log.info("Refresh successful. Session hash updated for user: {}", userEmail);
 
             log.info("Access token refreshed for user={}", userEmail);
 
             return AuthenticationResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
                     .build();
 
         }).subscribeOn(Schedulers.boundedElastic());
