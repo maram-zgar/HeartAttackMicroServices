@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientEvent {
-    private Long patientId;
+    private UUID patientId;
     private String firstName;
     private String lastName;
     private String email;

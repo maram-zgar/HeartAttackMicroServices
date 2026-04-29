@@ -11,7 +11,9 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.LocalDate;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
@@ -24,16 +26,16 @@ public class MedicalFile {
 
     @Id
     @GeneratedValue
-    private Long id;
-
-    private Long patientId;
+    private UUID id;
+    private UUID patientId;
     private LocalDate creationDate;
     private LocalDate lastUpdateDate;
-    private float riskPercentage;
+    private double riskPercentage;
     private RiskLevel riskLevel;
 
-    @Relationship(type = "POSSEDE", direction = OUTGOING)
-    private Patient patient;
+//    @Relationship(type = "POSSEDE", direction = Relationship.Direction.INCOMING)
+//    private dev.maram.medicalfile.patient.Patient patient;
+
 
     //@Relationship(type = "CONTIENT", direction = OUTGOING)
     //private List<Recommendation> recommendations = new ArrayList<>();

@@ -8,7 +8,8 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Node
 @Data
@@ -18,10 +19,10 @@ import java.time.LocalDateTime;
 public class Appointment {
     @Id
     @GeneratedValue
-    private Long id;
-    private Long patientId;
-    private Long doctorId;
-    private LocalDateTime dateTime;
+    private UUID id;
+    private UUID patientId;
+    private UUID doctorId;
+    private LocalDate dateTime;
     private String hospital;
 
     private AppointmentStatus status;

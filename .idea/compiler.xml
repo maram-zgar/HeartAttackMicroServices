@@ -20,14 +20,18 @@
         <module name="services.patient.test" />
         <module name="services.config-server.main" />
         <module name="services.appointment.test" />
+        <module name="services.doctor.main" />
+        <module name="services.consultation.main" />
         <module name="services.gateway.main" />
         <module name="services.medicalfile.main" />
         <module name="services.notification.test" />
         <module name="services.patient.main" />
+        <module name="services.consultation.test" />
         <module name="services.medicalfile.test" />
         <module name="services.notification.main" />
         <module name="services.discovery.main" />
         <module name="services.discovery.test" />
+        <module name="services.doctor.test" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="21">
@@ -71,9 +75,15 @@
       <module name="services.config-server" options="-parameters" />
       <module name="services.config-server.main" options="-parameters" />
       <module name="services.config-server.test" options="-parameters" />
+      <module name="services.consultation" options="-parameters" />
+      <module name="services.consultation.main" options="-parameters" />
+      <module name="services.consultation.test" options="-parameters" />
       <module name="services.discovery" options="-parameters" />
       <module name="services.discovery.main" options="-parameters" />
       <module name="services.discovery.test" options="-parameters" />
+      <module name="services.doctor" options="-parameters" />
+      <module name="services.doctor.main" options="-parameters" />
+      <module name="services.doctor.test" options="-parameters" />
       <module name="services.gateway" options="-parameters" />
       <module name="services.gateway.main" options="-parameters" />
       <module name="services.gateway.test" options="-parameters" />

@@ -1,7 +1,10 @@
 package dev.maram.gateway.auth;
 
-
 import dev.maram.gateway.config.JwtService;
+import dev.maram.gateway.kafka.PatientRegisteredEvent;
+import dev.maram.gateway.session.Session;
+import dev.maram.gateway.session.SessionRepository;
+import dev.maram.gateway.session.TokenHasher;
 import dev.maram.gateway.token.Token;
 import dev.maram.gateway.token.TokenRepository;
 import dev.maram.gateway.token.TokenType;
@@ -10,19 +13,25 @@ import dev.maram.gateway.user.User;
 import dev.maram.gateway.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
+import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final UserRepository repository;
@@ -30,25 +39,82 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final ReactiveAuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+    private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public Mono<RegistrationResponse> register(RegisterRequest request) {
+
+
+    // PATIENT SELF-REGISTRATION
+
+    public Mono<RegistrationResponse> registerPatient(RegisterRequest request) {
         return Mono.fromCallable(() -> {
             var user = User.builder()
                     .firstName(request.getFirstname())
                     .lastName(request.getLastname())
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
-                    .role(Role.USER)
+                    .role(Role.PATIENT)
                     .build();
-            repository.save(user);
+
+            var savedUser = repository.save(user);
+            var accessToken = jwtService.generateToken(savedUser);
+            saveUserToken(savedUser, accessToken);
+
+            kafkaTemplate.send("patient.registered", PatientRegisteredEvent.builder()
+                    .email(savedUser.getEmail())
+                    .firstName(savedUser.getFirstName())
+                    .lastName(savedUser.getLastName())
+                    .build());
+
+            log.info("Published patient.registered event for {}", savedUser.getEmail());
+
             return RegistrationResponse.builder()
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
                     .email(user.getEmail())
                     .message("User registered!")
                     .build();
+
         }).subscribeOn(Schedulers.boundedElastic());
     }
+
+
+    // DOCTOR CREATION BY ADMIN
+
+    public Mono<RegistrationResponse> createDoctor(CreateDoctorRequest request) {
+        return Mono.fromCallable(() -> {
+
+            boolean emailTaken = userRepository.findByEmail(request.getEmail()).isPresent();
+            if (emailTaken) {
+                throw new IllegalArgumentException("A user with this email already exists: " + request.getEmail());
+            }
+
+            var user = User.builder()
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getInitialPassword()))
+                    .role(Role.DOCTOR)
+                    .build();
+
+            var savedUser = userRepository.save(user);
+
+            log.info("Doctor account created by admin — userId={}, email={}", savedUser.getId(), savedUser.getEmail());
+
+            return RegistrationResponse.builder()
+                    .userId(savedUser.getId())
+                    .firstName(savedUser.getFirstName())
+                    .lastName(savedUser.getLastName())
+                    .email(savedUser.getEmail())
+                    .message("Doctor account created. They can now log in with the provided credentials.")
+                    .build();
+
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+
+    // LOGIN — authenticates credentials, issues tokens, opens a session
 
     public Mono<AuthenticationResponse> authenticate(AuthenticationRequest request) {
         return authenticationManager.authenticate(
@@ -58,29 +124,49 @@ public class AuthenticationService {
                 )
         ).flatMap(auth ->
                 Mono.fromCallable(() -> {
-                    var user = repository.findByEmail(request.getEmail())
-                            .orElseThrow();
-                    var jwtToken = jwtService.generateToken(user);
+                    var user = repository.findByEmail(request.getEmail()).orElseThrow();
+
+                    // Revoke any existing sessions for this user before opening a new one
+                    sessionRepository.revokedSessionForUser(user.getId());
+
+                    var accessToken = jwtService.generateToken(user);
                     var refreshToken = jwtService.generateRefreshToken(user);
-                    saveUserToken(user, jwtToken);
+
+                    saveUserToken(user, accessToken);
+                    openSession(user, refreshToken);
+
+                    log.info("User authenticated and session created for {}", user.getEmail());
+
                     return AuthenticationResponse.builder()
-                            .accessToken(jwtToken)
+                            .accessToken(accessToken)
                             .refreshToken(refreshToken)
                             .build();
+
                 }).subscribeOn(Schedulers.boundedElastic())
         );
     }
 
-    private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .expired(false)
-                .revoked(false)
-                .build();
-        tokenRepository.save(token);
+
+    // /me — returns the profile of the currently authenticated user
+
+    public Mono<UserProfileResponse> getCurrentUserProfile(Authentication authentication) {
+        return Mono.fromCallable(() -> {
+            String email = authentication.getName();
+            var user = userRepository.findByEmail(email).orElseThrow();
+
+            return UserProfileResponse.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .role(user.getRole())
+                    .build();
+
+        }).subscribeOn(Schedulers.boundedElastic());
     }
+
+
+    // REFRESH TOKEN — validates session, issues new access token
 
     public Mono<AuthenticationResponse> refreshToken(ServerHttpRequest request) {
         return Mono.fromCallable(() -> {
@@ -90,7 +176,7 @@ public class AuthenticationService {
                 throw new IllegalArgumentException("Missing or invalid Authorization header");
             }
 
-            String refreshToken = authHeader.substring(7);
+            String refreshToken = authHeader.substring(7).trim();
             String userEmail = jwtService.extractUsername(refreshToken);
 
             if (userEmail == null) {
@@ -103,7 +189,18 @@ public class AuthenticationService {
                 throw new IllegalArgumentException("Refresh token is not valid");
             }
 
+            String tokenHash = TokenHasher.hash(refreshToken);
+            var session = sessionRepository.findByRefreshTokenHash(tokenHash)
+                    .orElseThrow(() -> new IllegalArgumentException("No active session found for this refresh token"));
+
+            if (session.isRevoked() || session.getExpiresAt().isBefore(Instant.now())) {
+                throw new IllegalArgumentException("Session has been revoked or has expired");
+            }
+
             var accessToken = jwtService.generateToken(user);
+
+            log.info("Access token refreshed for user={}", userEmail);
+
             return AuthenticationResponse.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
@@ -111,66 +208,32 @@ public class AuthenticationService {
 
         }).subscribeOn(Schedulers.boundedElastic());
     }
+
+
+    // PRIVATE HELPERS
+
+    private void openSession(User user, String refreshToken) {
+        Instant expiresAt = jwtService.extractExpiration(refreshToken).toInstant();
+
+        var session = Session.builder()
+                .refreshTokenHash(TokenHasher.hash(refreshToken))
+                .user(user)
+                .expiresAt(expiresAt)
+                .createdAt(Instant.now())
+                .revoked(false)
+                .build();
+
+        sessionRepository.save(session);
+    }
+
+    private void saveUserToken(User user, String jwtToken) {
+        var token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(token);
+    }
 }
-
-
-//import dev.maram.gateway.config.JwtService;
-//import dev.maram.gateway.user.Role;
-//import dev.maram.gateway.user.User;
-//import dev.maram.gateway.user.UserRepository;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.security.authentication.ReactiveAuthenticationManager;
-//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.stereotype.Service;
-//import reactor.core.publisher.Mono;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class AuthenticationService {
-//
-//    private final UserRepository userRepository;
-//    private final PasswordEncoder passwordEncoder;
-//    private final JwtService jwtService;
-//    // Switch to the Reactive version
-//    private final ReactiveAuthenticationManager authenticationManager;
-//
-//    public Mono<AuthenticationResponse> register(RegisterRequest request) {
-//        var user = User.builder()
-//                .firstName(request.getFirstname())
-//                .lastName(request.getLastname())
-//                .email(request.getEmail())
-//                .password(passwordEncoder.encode(request.getPassword()))
-//                .role(Role.USER)
-//                .build();
-//
-//        // repository.save(user) now returns Mono<User>
-//        return userRepository.save(user) // This returns Mono<User>
-//                .map(savedUser -> {
-//                    var jwtToken = jwtService.generateToken((UserDetails) savedUser);
-//                    return AuthenticationResponse.builder()
-//                            .token(jwtToken)
-//                            .build();
-//                });
-//    }
-//
-//    public Mono<AuthenticationResponse> authenticate(AuthenticationRequest request) {
-//        return authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(
-//                        request.getEmail(),
-//                        request.getPassword()
-//                )
-//        ).flatMap(auth ->
-//                // After successful auth, find the user and generate token
-//                userRepository.findByEmail(request.getEmail())
-//                        .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
-//                        .map(user -> {
-//                            var jwtToken = jwtService.generateToken(user);
-//                            return AuthenticationResponse.builder()
-//                                    .token(jwtToken)
-//                                    .build();
-//                        })
-//        );
-//    }
-//}

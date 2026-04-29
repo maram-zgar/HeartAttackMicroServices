@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/patients")
@@ -15,7 +16,7 @@ public class PatientController {
     private final PatientService service;
 
     @PostMapping
-    public ResponseEntity<Long> createPatient(
+    public ResponseEntity<UUID> createPatient(
             @RequestBody @Valid PatientRequest request
     ) {
         return  ResponseEntity.ok(service.createPatient(request));
@@ -36,21 +37,21 @@ public class PatientController {
 
     @GetMapping("/exists/{patient-id}")
     public ResponseEntity<Boolean> existsById(
-            @PathVariable("patient-id") Long patientId
+            @PathVariable("patient-id") UUID patientId
     ) {
         return ResponseEntity.ok(service.existsById(patientId));
     }
 
     @GetMapping("/{patient-id}")
     public ResponseEntity<PatientResponse> findById(
-            @PathVariable("patient-id") Long patientId
+            @PathVariable("patient-id") UUID patientId
     ) {
         return ResponseEntity.ok(service.findById(patientId));
     }
 
     @DeleteMapping("/{patient-id}")
     public ResponseEntity<Void> delete(
-            @PathVariable("patient-id") Long patientId
+            @PathVariable("patient-id") UUID patientId
     ) {
         service.deletePatient(patientId);
         return ResponseEntity.accepted().build();

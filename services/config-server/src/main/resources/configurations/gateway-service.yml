@@ -20,6 +20,14 @@ spring:
           uri: lb://MEDICAL-FILE-SERVICE
           predicates:
             - Path=/api/v1/medicalfiles/**
+        - id: doctor-service
+          uri: lb://DOCTOR-SERVICE
+          predicates:
+            - Path=/api/v1/doctors/**
+        - id: consultation-service
+          uri: lb://CONSULTATION-SERVICE
+          predicates:
+            - Path=/api/v1/consultations/**
   datasource:
     url: jdbc:postgresql://localhost:5432/auth
     username: postgres
@@ -29,13 +37,20 @@ spring:
     show-sql: true
     generate-ddl: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         globally_quoted_identifiers: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     database: POSTGRESQL
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
 
 jwt:
   secret: 23228fd40495884121af52c31dc584490b255c1efb8cc8f9a78e5acdf95358d8d4599cce5fb67e49dde822e6c05e8ff5c1721085ad22960393b3c5799ed09108

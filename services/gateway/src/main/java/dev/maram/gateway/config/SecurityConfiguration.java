@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Configuration;
 //import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 //import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -16,6 +18,9 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 //import org.springframework.security.web.SecurityFilterChain;
 //import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 //import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -63,14 +68,44 @@ public class SecurityConfiguration {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:4200"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+                    return config;
+                }))
+                .csrf(csrf -> csrf.disable())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/api/v1/auth/**").permitAll()
+                        // Public auth endpoints
+                        .pathMatchers("/api/v1/auth/authenticate",
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/refresh-token").permitAll()
+                        .pathMatchers("/api/v1/auth/me").authenticated()
+                        .pathMatchers(HttpMethod.PATCH, "/api/v1/auth/change-password").authenticated()
+
+                        // Admin-only: managing doctors (CRUD)
+                        .pathMatchers("/admin/**").hasRole("ADMIN")
+
+                        // Doctor-only
+                        .pathMatchers(HttpMethod.POST, "/api/v1/doctors/consultation/complete").hasRole("DOCTOR")
+                        .pathMatchers(HttpMethod.GET, "/api/v1/patients/**").hasRole("DOCTOR")
+                        .pathMatchers(HttpMethod.POST, "/api/v1/patients").hasRole("DOCTOR")
+                        .pathMatchers(HttpMethod.GET, "/api/v1/appointments").hasRole("DOCTOR")
+                        .pathMatchers("/api/v1/medicalfiles/**").hasRole("DOCTOR")
+
+
+                        .pathMatchers("/api/v1/appointments/**").hasAnyRole("DOCTOR", "PATIENT")
+
                         .anyExchange().authenticated()
                 )
                 .authenticationManager(reactiveAuthenticationManager)
-                // Add your custom JWT filter
                 .addFilterBefore(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .logout(Customizer.withDefaults())
                 .build();
     }
 }

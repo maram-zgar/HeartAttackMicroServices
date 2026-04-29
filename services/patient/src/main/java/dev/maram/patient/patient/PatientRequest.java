@@ -3,8 +3,10 @@ package dev.maram.patient.patient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 public record PatientRequest(
-        Long id,
+        UUID id,
         @NotNull(message = "Prénom du Patient (first name) est obligatoire")
         String firstName,
         @NotNull(message = "Nom du Patient (last name) est obligatoire")

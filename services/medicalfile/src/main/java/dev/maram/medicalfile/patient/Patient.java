@@ -5,9 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+
+import java.util.UUID;
 
 @Node
 @Data
@@ -17,7 +20,8 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 public class Patient {
 
     @Id
-    private Long id;
+    @GeneratedValue(GeneratedValue.UUIDGenerator.class)
+    private UUID id;
     private String firstName;
     private String lastName;
     private String email;
