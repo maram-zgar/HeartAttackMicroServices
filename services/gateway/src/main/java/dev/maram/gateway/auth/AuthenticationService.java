@@ -55,6 +55,9 @@ public class AuthenticationService {
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.PATIENT)
+                    .dateOfBirth(request.getDateOfBirth())
+                    .gender(request.getGender())
+                    .phoneNumber(request.getPhoneNumber())
                     .build();
 
             var savedUser = repository.save(user);
@@ -81,7 +84,6 @@ public class AuthenticationService {
 
 
     // DOCTOR CREATION BY ADMIN
-
     public Mono<RegistrationResponse> createDoctor(CreateDoctorRequest request) {
         return Mono.fromCallable(() -> {
 
@@ -96,6 +98,9 @@ public class AuthenticationService {
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getInitialPassword()))
                     .role(Role.DOCTOR)
+                    .hospital(request.getHospital())
+                    .numeroRPPS(request.getNumeroRPPS())
+                    .isActive(true)
                     .build();
 
             var savedUser = userRepository.save(user);
@@ -166,7 +171,17 @@ public class AuthenticationService {
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
                     .role(user.getRole())
+                    // Doctor fields (null for patients)
+                    .numeroRPPS(user.getNumeroRPPS())
+                    .phoneNumber(user.getPhoneNumber())
+                    .avatarUrl(user.getAvatarUrl())
+                    .hospital(user.getHospital())
+                    .isActive(user.getIsActive())
+                    // Patient fields (null for doctors)
+                    .dateOfBirth(user.getDateOfBirth())
+                    .gender(user.getGender())
                     .build();
+
 
         }).subscribeOn(Schedulers.boundedElastic());
     }

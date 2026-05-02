@@ -16,4 +16,9 @@ public class RegisterRequest {
     private String lastname;
     private String email;
     private String password;
+
+    // Patient-specific
+    private String dateOfBirth;
+    private String gender;
+    private String phoneNumber;
 }

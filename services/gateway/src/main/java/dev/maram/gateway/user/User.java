@@ -32,9 +32,29 @@ public class User implements UserDetails {
     private String email;
     private String password;
 
-
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    // ── Doctor-specific fields (null for patients) ───────────────────────────
+    @Column(name = "numero_rpps")
+    private String numeroRPPS;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    private String hospital;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
+
+    // ── Patient-specific fields (null for doctors) ───────────────────────────
+    @Column(name = "date_of_birth")
+    private String dateOfBirth;
+
+    private String gender;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

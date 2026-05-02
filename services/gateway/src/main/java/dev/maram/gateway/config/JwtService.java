@@ -1,5 +1,6 @@
 package dev.maram.gateway.config;
 
+import dev.maram.gateway.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -38,37 +39,37 @@ public class JwtService {
     }
 
     // Generate a token from user details only
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("email", userDetails.getUsername());
-        return generateToken(extraClaims, userDetails);
+        extraClaims.put("email", user.getEmail());
+        return generateToken(extraClaims, user);
     }
 
     // Generate a token out of extra claims and user details
     public String generateToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails
+            User userDetails
     ) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
     public String generateRefreshToken(
-            UserDetails userDetails
+            User userDetails
     ) {
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("email", userDetails.getUsername());
+        extraClaims.put("email", userDetails.getEmail());
         return buildToken(extraClaims, userDetails, refreshExpiration);
     }
 
     private String buildToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails,
+            User userDetails,
             long expiration
     ) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(userDetails.getId().toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS512)
