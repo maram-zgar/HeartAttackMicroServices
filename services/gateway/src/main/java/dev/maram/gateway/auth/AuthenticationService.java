@@ -176,7 +176,6 @@ public class AuthenticationService {
                     .phoneNumber(user.getPhoneNumber())
                     .avatarUrl(user.getAvatarUrl())
                     .hospital(user.getHospital())
-                    .isActive(user.getIsActive())
                     // Patient fields (null for doctors)
                     .dateOfBirth(user.getDateOfBirth())
                     .gender(user.getGender())
@@ -202,7 +201,7 @@ public class AuthenticationService {
 
             String refreshToken = authHeader.substring(7).trim();
             log.info("Incoming RefreshToken (from header): {}", refreshToken.substring(0, 20) + "...");
-            String userEmail = jwtService.extractUsername(refreshToken);
+            String userEmail = jwtService.extractEmail(refreshToken);
             log.info("Extracted Username from RefreshToken: {}", userEmail);
 
             if (userEmail == null) {

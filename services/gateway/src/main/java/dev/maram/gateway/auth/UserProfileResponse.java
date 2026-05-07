@@ -4,7 +4,7 @@ import dev.maram.gateway.user.Role;
 import lombok.*;
 
 import java.util.UUID;
-
+@ToString
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class UserProfileResponse {
     private UUID id;
@@ -18,7 +18,6 @@ public class UserProfileResponse {
     private String phoneNumber;
     private String avatarUrl;
     private String hospital;
-    private Boolean isActive;
 
     // Patient-specific (null for doctors) — extend later
     private String dateOfBirth;

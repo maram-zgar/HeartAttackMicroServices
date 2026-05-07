@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter implements WebFilter {
         }
 
         String jwt = authHeader.substring(7);
-        String userEmail = jwtService.extractUsername(jwt);
+        String userEmail = jwtService.extractEmail(jwt);
 
         if (userEmail != null) {
             return userDetailsService.findByUsername(userEmail)
