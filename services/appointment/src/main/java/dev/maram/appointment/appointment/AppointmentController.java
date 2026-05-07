@@ -55,6 +55,12 @@ public class AppointmentController {
         return ResponseEntity.ok(service.cancelAppointment(id, request));
     }
 
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<AppointmentResponse> complete(@PathVariable UUID id, @RequestBody AppointmentRequest request) {
+        // This is what finally calls your first method!
+        return ResponseEntity.ok(service.completeAppointment(id, request));
+    }
+
     // Returns available dates for a doctor given a day of week
     // Example: GET /api/v1/appointments/available-slots?doctorId=xxx&date=2025-06-16
     @GetMapping("/available-slots")

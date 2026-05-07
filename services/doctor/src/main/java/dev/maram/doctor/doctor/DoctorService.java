@@ -2,13 +2,14 @@ package dev.maram.doctor.doctor;
 
 import dev.maram.doctor.exception.DoctorNotFoundException;
 import dev.maram.doctor.kafka.AppointmentCompletedEvent;
-import dev.maram.doctor.kafka.DoctorEvent;
 import dev.maram.doctor.kafka.DoctorEventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,6 +24,7 @@ public class DoctorService {
     private final DoctorRepository repository;
     private final DoctorMapper mapper;
     private final DoctorEventProducer producer;
+    private final PasswordEncoder passwordEncoder;
 
     public UUID createDoctor(DoctorRequest request) {
         var doctor = Doctor.builder()
@@ -32,6 +34,7 @@ public class DoctorService {
                 .email(request.email())
                 .numeroRPPS(request.numeroRPPS())
                 .hospital(request.hospital())
+                .password(passwordEncoder.encode(request.password()))
                 .build();
         return repository.save(doctor).getId();
     }
@@ -77,12 +80,15 @@ public class DoctorService {
         if (StringUtils.isNotBlank(request.email())) {
             doctor.setEmail(request.email());
         }
-        if(StringUtils.isNotBlank(request.numeroRPPS())) {
-            doctor.setNumeroRPPS(request.numeroRPPS());
-        }
         if (StringUtils.isNotBlank(request.hospital())) {
             doctor.setHospital(request.hospital());
         }
+    }
+
+    public DoctorResponse findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(mapper::fromDoctor)
+                .orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
     }
 
     public List<DoctorResponse> findAllDoctors() {
@@ -105,6 +111,26 @@ public class DoctorService {
 
     public void deleteDoctor(UUID doctorId) {
         repository.deleteById(doctorId);
+    }
+
+    public Mono<Void> changePassword(ChangePasswordRequest request, String email) {
+        return Mono.fromCallable(() -> {
+            // 1. Fetch doctor by email
+            var doctor = repository.findByEmail(email)
+                    .orElseThrow(() -> new DoctorNotFoundException("Doctor not found with email: " + email));
+
+            // 2. Verify current password
+            if (!passwordEncoder.matches(request.currentPassword(), doctor.getPassword())) {
+                throw new IllegalStateException("The current password provided is incorrect.");
+            }
+
+            // 3. Update and Save
+            doctor.setPassword(passwordEncoder.encode(request.newPassword()));
+            repository.save(doctor);
+
+            log.info("Password updated successfully for doctor: {}", email);
+            return null;
+        }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
 }

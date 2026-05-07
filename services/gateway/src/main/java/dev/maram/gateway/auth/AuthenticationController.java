@@ -2,6 +2,8 @@ package dev.maram.gateway.auth;
 
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
     private final AuthenticationService service;
 
     @PostMapping("/register")
@@ -38,7 +41,12 @@ public class AuthenticationController {
 
     // returns the authenticated users s profile
     @GetMapping("/me")
-    public ResponseEntity<Mono<UserProfileResponse>> me(Authentication authentication) {
-        return ResponseEntity.ok(service.getCurrentUserProfile(authentication));
+    public Mono<ResponseEntity<UserProfileResponse>> me(Authentication authentication) {
+        return this.service.getCurrentUserProfile(authentication)
+                .map(profile -> {
+                    log.info("Profile: {}", profile);
+                    return ResponseEntity.ok(profile);
+                })
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

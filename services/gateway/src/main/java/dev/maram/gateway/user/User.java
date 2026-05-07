@@ -32,9 +32,29 @@ public class User implements UserDetails {
     private String email;
     private String password;
 
-
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    // ── Doctor-specific fields (null for patients) ───────────────────────────
+    @Column(name = "numero_rpps")
+    private String numeroRPPS;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    private String hospital;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
+
+    // ── Patient-specific fields (null for doctors) ───────────────────────────
+    @Column(name = "date_of_birth")
+    private String dateOfBirth;
+
+    private String gender;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -71,44 +91,3 @@ public class User implements UserDetails {
         return true;
     }
 }
-
-
-//@Data
-//@Builder
-//@NoArgsConstructor
-//@AllArgsConstructor
-//@Table("users") // Use Spring Data Relational mapping
-//public class User implements UserDetails {
-//
-//    @Id // Use org.springframework.data.annotation.Id
-//    private Long id;
-//
-//    private String firstName;
-//    private String lastName;
-//    private String email;
-//    private String password;
-//
-//    // R2DBC doesn't automatically map Enums as easily as JPA's @Enumerated.
-//    // Ensure your 'Role' class is a simple String or handled by a Converter.
-//    private Role role;
-//
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return List.of(new SimpleGrantedAuthority(role.name()));
-//    }
-//
-//    @Override
-//    public String getPassword() {
-//        return password;
-//    }
-//
-//    @Override
-//    public String getUsername() {
-//        return email;
-//    }
-//
-//    @Override public boolean isAccountNonExpired() { return true; }
-//    @Override public boolean isAccountNonLocked() { return true; }
-//    @Override public boolean isCredentialsNonExpired() { return true; }
-//    @Override public boolean isEnabled() { return true; }
-//}

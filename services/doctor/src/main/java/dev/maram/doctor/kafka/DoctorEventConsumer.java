@@ -25,7 +25,8 @@ public class DoctorEventConsumer {
                 event.getLastName(),
                 event.getEmail(),
                 event.getNumeroRPPS(),
-                event.getHospital()
+                event.getHospital(),
+                event.getPassword()
 
         ));
 
