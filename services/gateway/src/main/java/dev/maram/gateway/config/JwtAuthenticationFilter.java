@@ -3,6 +3,7 @@ package dev.maram.gateway.config;
 
 import dev.maram.gateway.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 //import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +25,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.io.IOException;
 import java.util.List;
 
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements WebFilter {
@@ -50,6 +51,7 @@ public class JwtAuthenticationFilter implements WebFilter {
         }
 
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        log.info("[JWT FILTER] Authorization header: {}", authHeader != null ? authHeader.substring(0, 20) : "NULL");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return chain.filter(exchange);
