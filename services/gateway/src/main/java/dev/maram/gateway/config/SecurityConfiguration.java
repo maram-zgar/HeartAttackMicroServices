@@ -9,8 +9,11 @@ import org.springframework.context.annotation.Configuration;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 //import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -19,7 +22,9 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 //import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
+import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 //import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -100,6 +105,15 @@ public class SecurityConfiguration {
                         .pathMatchers("/api/v1/appointments/**").hasAnyRole("DOCTOR", "PATIENT")
 
                         .anyExchange().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((exchange, e) -> {
+                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                            var body = "{\"error\":\"Unauthorized\"}".getBytes(StandardCharsets.UTF_8);
+                            var buffer = exchange.getResponse().bufferFactory().wrap(body);
+                            return exchange.getResponse().writeWith(Mono.just(buffer));
+                        })
                 )
                 .authenticationManager(reactiveAuthenticationManager)
                 .addFilterBefore(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
