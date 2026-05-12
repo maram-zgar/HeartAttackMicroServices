@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
@@ -12,8 +13,7 @@ public record AppointmentRequest(
         String patientEmail,
         String patientFirstName,
         UUID doctorId,
-        @NotNull LocalDate dateTime,
-        @NotNull String hospital,
+        @NotNull LocalDateTime dateTime,
         AppointmentStatus status
 ) {
 }

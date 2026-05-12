@@ -18,4 +18,5 @@ public class PatientEvent {
     private String lastName;
     private String email;
     private String eventType;
+    private String temporaryPassword;
 }

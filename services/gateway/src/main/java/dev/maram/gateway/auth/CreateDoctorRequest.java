@@ -17,8 +17,6 @@ public class CreateDoctorRequest {
     @NotBlank
     private String numeroRPPS;
     @NotBlank
-    private String hospital;
-    @NotBlank
     private String initialPassword;
 
 }

@@ -15,7 +15,6 @@ public class DoctorMapper {
                 .lastName(request.lastName())
                 .email(request.email())
                 .numeroRPPS(request.numeroRPPS())
-                .hospital(request.hospital())
                 .build();
     }
 
@@ -25,8 +24,7 @@ public class DoctorMapper {
                 doctor.getFirstName(),
                 doctor.getLastName(),
                 doctor.getEmail(),
-                doctor.getNumeroRPPS(),
-                doctor.getHospital()
+                doctor.getNumeroRPPS()
         );
     }
 }

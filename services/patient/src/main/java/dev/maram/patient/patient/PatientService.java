@@ -8,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,8 +25,16 @@ public class PatientService {
     private final PatientMapper mapper;
     private final PatientEventProducer producer;
 
-    public UUID createPatient(PatientRequest request) {
 
+    private String generatePassword() {
+        SecureRandom sr = new SecureRandom();
+        byte[] bytes = new byte[9];
+        sr.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    @Transactional
+    public UUID createPatient(PatientRequest request) {
         // If patient already exists by email, update instead of creating
         var existing = repository.findByEmail(request.email());
         if (existing.isPresent()) {
@@ -34,19 +45,28 @@ public class PatientService {
             return patient.getId();
         }
 
-        var patient = mapper.toPatient(request);
+        Patient patient = mapper.toPatient(request);
         var saved = repository.save(patient);
-
         log.info("SAVED PATIENT: {}", saved);
 
-        // Publish event so MedicalFile service creates a file
-        producer.sendPatientEvent(PatientEvent.builder()
+        String temporaryPassword = generatePassword();
+
+        PatientEvent event = PatientEvent.builder()
                 .patientId(saved.getId())
+                .doctorId(request.doctorId())
                 .firstName(saved.getFirstName())
                 .lastName(saved.getLastName())
                 .email(saved.getEmail())
                 .eventType("CREATED")
-                .build());
+                .temporaryPassword(temporaryPassword)
+                .dateOfBirth(request.dateOfBirth())
+                .gender(request.gender())
+                .age(saved.getAge())
+                .build();
+
+        // Publish event so MedicalFile service creates a file
+        producer.sendPatientEvent(event);
+        log.info("Published patient.created for patientId={}", saved.getId());
 
         return saved.getId();
     }
@@ -73,9 +93,6 @@ public class PatientService {
         }
         if (StringUtils.isNotBlank(request.email())) {
             patient.setEmail(request.email());
-        }
-        if (StringUtils.isNotBlank(request.hospital())) {
-            patient.setHospital(request.hospital());
         }
     }
 

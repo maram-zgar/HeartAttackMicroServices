@@ -1,4 +1,4 @@
-package dev.maram.patient.kafka;
+package dev.maram.gateway.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientEvent {
-    private UUID    patientId;
+    private UUID patientId;
     private UUID    doctorId;
     private String  firstName;
     private String  lastName;

@@ -16,8 +16,6 @@ public record DoctorRequest(
         String email,
         @NotNull(message = "Numéro RPPS est obligatoire")
         String numeroRPPS,
-        @NotNull(message = "Hopital est obligatoire")
-        String hospital,
         @NotNull(message = "Mot de passe obligatoire")
         String password
 ) {

@@ -23,7 +23,6 @@ public class AdminService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .numeroRPPS(request.getNumeroRPPS())
-                .hospital(request.getHospital())
                 .password(request.getInitialPassword())
                 .build());
 

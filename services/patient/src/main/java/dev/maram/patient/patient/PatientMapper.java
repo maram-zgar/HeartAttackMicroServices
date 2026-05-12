@@ -14,7 +14,6 @@ public class PatientMapper {
                 .lastName(request.lastName())
                 .age(request.age())
                 .email(request.email())
-                .hospital(request.hospital())
                 .build();
     }
 
@@ -24,8 +23,7 @@ public class PatientMapper {
                 patient.getFirstName(),
                 patient.getLastName(),
                 patient.getAge(),
-                patient.getEmail(),
-                patient.getHospital()
+                patient.getEmail()
         );
     }
 }

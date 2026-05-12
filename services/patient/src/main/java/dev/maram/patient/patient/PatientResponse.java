@@ -10,7 +10,6 @@ public record PatientResponse (
         String firstName,
         String lastName,
         int age,
-        String email,
-        String hospital
+        String email
 ){
 }

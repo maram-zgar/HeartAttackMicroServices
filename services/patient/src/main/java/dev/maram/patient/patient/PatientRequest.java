@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public record PatientRequest(
         UUID id,
+        UUID doctorId,
         @NotNull(message = "Prénom du Patient (first name) est obligatoire")
         String firstName,
         @NotNull(message = "Nom du Patient (last name) est obligatoire")
@@ -16,8 +17,8 @@ public record PatientRequest(
         @NotNull(message = "Email du Patient est obligatoire")
         @Email(message = "Email unvalid")
         String email,
-        @NotNull(message = "Hopital est obligatoire")
-        String hospital
+        String  dateOfBirth,
+        String  gender
 ) {
 }
 
