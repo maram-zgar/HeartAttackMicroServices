@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -16,6 +17,6 @@ public class AppointmentSlotWarningEvent {
 
     private UUID doctorId;
     private UUID patientId;
-    private LocalDate requestedDate;
+    private LocalDateTime requestedDate;
     private String reason; // "PENDING_CONFLICT"
 }

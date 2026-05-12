@@ -21,22 +21,25 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<Mono<RegistrationResponse>> register(
+    public Mono<ResponseEntity<RegistrationResponse>> register(
             @RequestBody RegisterRequest request
     ) {
-        return ResponseEntity.ok(service.registerPatient(request));
+        return service.registerPatient(request)
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<Mono<AuthenticationResponse>> authenticate(
+    public Mono<ResponseEntity<AuthenticationResponse>> authenticate(
             @RequestBody AuthenticationRequest request
     ) {
-        return ResponseEntity.ok(service.authenticate(request));
+        return service.authenticate(request)
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<Mono<AuthenticationResponse>> refreshToken(ServerWebExchange exchange) {
-        return ResponseEntity.ok(service.refreshToken(exchange.getRequest()));
+    public Mono<ResponseEntity<AuthenticationResponse>> refreshToken(ServerWebExchange exchange) {
+        return service.refreshToken(exchange.getRequest())
+                .map(ResponseEntity::ok);
     }
 
     // returns the authenticated users s profile

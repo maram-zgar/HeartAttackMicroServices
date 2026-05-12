@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -23,8 +24,7 @@ public class AppointmentEvent {
     private String doctorEmail;
     private String lastName;
 
-    private LocalDate appointmentDate;
-    private String hospital;
+    private LocalDateTime appointmentDate;
     private String status;
 
 }

@@ -30,6 +30,5 @@ public class Doctor {
     //@Column(unique = true)
     private String email;
     private String numeroRPPS;
-    private String hospital;
     private String password;
 }

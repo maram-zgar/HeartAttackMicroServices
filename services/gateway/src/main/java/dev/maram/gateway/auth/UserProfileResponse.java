@@ -17,9 +17,10 @@ public class UserProfileResponse {
     private String numeroRPPS;
     private String phoneNumber;
     private String avatarUrl;
-    private String hospital;
 
     // Patient-specific (null for doctors) — extend later
     private String dateOfBirth;
     private String gender;
+    private Integer age;
+    private UUID doctorId;
 }

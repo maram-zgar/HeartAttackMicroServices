@@ -20,7 +20,6 @@ public class AppointmentEvent {
     private String patientFirstName;
     private String doctorEmail;
     private LocalDate dateTime;
-    private String hospital;
     private String status;
 
 }

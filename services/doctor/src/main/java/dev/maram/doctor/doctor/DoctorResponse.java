@@ -7,7 +7,6 @@ public record DoctorResponse(
         String firstName,
         String lastName,
         String email,
-        String numeroRPPS,
-        String hospital
+        String numeroRPPS
 ) {
 }

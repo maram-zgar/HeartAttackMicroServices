@@ -26,7 +26,7 @@ public class MedicalFileService {
     private final WelcomeEventProducer welcomeEventProducer;
 
     @Transactional
-    public void createMedicalFileForPatient(UUID patientId, String firstName, String lastName, String email) {
+    public void createMedicalFileForPatient(UUID patientId, String firstName, String lastName, String email, String temporaryPassword) {
         neo4jClient.query("""
                 MERGE (p:Patient {id: $patientId})
                 SET p.firstName = $firstName,
@@ -67,6 +67,7 @@ public class MedicalFileService {
                         .email(email)
                         .firstName(firstName)
                         .medicalFileId(savedFile.getId())
+                        .temporaryPassword(temporaryPassword)
                         .build()
         );
     }
@@ -89,13 +90,12 @@ public class MedicalFileService {
         neo4jClient.query("""
             MERGE (p:Patient {id: $patientId})
             MERGE (a:Appointment {id: $appointmentId})
-            SET a.dateTime = $dateTime, a.hospital = $hospital, a.status = $status
+            SET a.dateTime = $dateTime, a.status = $status
             MERGE (p)-[:HAS_APPOINTMENT]->(a)
             """)
                 .bind(event.getPatientId()).to("patientId")
                 .bind(event.getAppointmentId()).to("appointmentId")
                 .bind(event.getDateTime().toString()).to("dateTime")
-                .bind(event.getHospital()).to("hospital")
                 .bind(event.getStatus()).to("status")
                 .run();
 

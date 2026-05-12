@@ -1,7 +1,6 @@
 package dev.maram.patient.patient;
 
 
-//import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -28,6 +27,5 @@ public class Patient {
     @Email(message = "Email must be a valid email address")
     //@Column(unique = true)
     private String email;
-    private String hospital;
 }
 

@@ -12,8 +12,7 @@ public record AppointmentResponse(
         UUID id,
         UUID patientId,
         UUID doctorId,
-        LocalDate dateTime,
-        String hospital,
+        LocalDateTime dateTime,
         AppointmentStatus status
 ) {
 }

@@ -9,6 +9,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Node
@@ -22,8 +23,7 @@ public class Appointment {
     private UUID id;
     private UUID patientId;
     private UUID doctorId;
-    private LocalDate dateTime;
-    private String hospital;
+    private LocalDateTime dateTime;
 
     private AppointmentStatus status;
 }

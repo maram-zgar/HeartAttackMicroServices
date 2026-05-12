@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -70,7 +73,6 @@ public class AppointmentService {
                 .patientId(request.patientId())
                 .doctorId(request.doctorId())
                 .dateTime(request.dateTime())
-                .hospital(request.hospital())
                 .status(AppointmentStatus.PENDING)
                 .build();
 
@@ -82,7 +84,6 @@ public class AppointmentService {
                 .patientEmail(request.patientEmail())
                 .patientFirstName(request.patientFirstName())
                 .appointmentDate(saved.getDateTime())
-                .hospital(saved.getHospital())
                 .status("PENDING")
                 .build());
 
@@ -104,7 +105,6 @@ public class AppointmentService {
                 .patientEmail(request.patientEmail())
                 .patientFirstName(request.patientFirstName())
                 .appointmentDate(saved.getDateTime())
-                .hospital(saved.getHospital())
                 .status("RESCHEDULED")
                 .build());
 
@@ -124,7 +124,6 @@ public class AppointmentService {
                 .patientEmail(request.patientEmail())
                 .patientFirstName(request.patientFirstName())
                 .appointmentDate(saved.getDateTime())
-                .hospital(saved.getHospital())
                 .status("CONFIRMED")
                 .build());
 
@@ -145,7 +144,6 @@ public class AppointmentService {
                 .patientEmail(request.patientEmail())
                 .patientFirstName(request.patientFirstName())
                 .appointmentDate(saved.getDateTime())
-                .hospital(saved.getHospital())
                 .status("CANCELLED")
                 .build());
 
@@ -173,7 +171,7 @@ public class AppointmentService {
     }
 
     public AvailableSlotsResponse getAvailableSlots(UUID doctorId, LocalDate date) {
-        // Check cached availability for that day of week
+
         var availability = cachedAvailabilityRepository
                 .findByDoctorIdAndDayOfWeek(doctorId, date.getDayOfWeek())
                 .orElse(null);
@@ -182,21 +180,37 @@ public class AppointmentService {
             return new AvailableSlotsResponse(doctorId, date, List.of());
         }
 
-        // Find already booked (non-cancelled) dates
-        Set<LocalDate> booked = repository.findByDoctorIdAndDate(doctorId, date)
-                .stream()
-                .map(Appointment::getDateTime)
-                .collect(Collectors.toSet());
+        // Generate all slots for that day
+        List<LocalDateTime> allSlots = new ArrayList<>();
 
-        // Only filter out CONFIRMED slots — PENDING ones still show with a warning on UI later
-        Set<LocalDate> confirmed = repository.findByDoctorIdAndDateAndStatus(doctorId, date, AppointmentStatus.CONFIRMED)
-                .stream()
-                .map(Appointment::getDateTime)
-                .collect(Collectors.toSet());
+        LocalDateTime start = LocalDateTime.of(date, availability.getStartTime());
+        LocalDateTime end = LocalDateTime.of(date, availability.getEndTime());
 
-        return new AvailableSlotsResponse(doctorId, date, confirmed.isEmpty()
-                ? List.of(date)   // slot is free
-                : List.of()       // slot fully confirmed, hide it
+        while (start.isBefore(end)) {
+            allSlots.add(start);
+            start = start.plusMinutes(availability.getSlotDurationMinutes());
+        }
+
+        // Get confirmed appointments only
+        Set<LocalDateTime> confirmedSlots =
+                repository.findByDoctorIdAndDateAndStatus(
+                                doctorId,
+                                date,
+                                AppointmentStatus.CONFIRMED
+                        )
+                        .stream()
+                        .map(Appointment::getDateTime)
+                        .collect(Collectors.toSet());
+
+        // Remove confirmed slots
+        List<LocalDateTime> availableSlots = allSlots.stream()
+                .filter(slot -> !confirmedSlots.contains(slot))
+                .toList();
+
+        return new AvailableSlotsResponse(
+                doctorId,
+                date,
+                availableSlots
         );
     }
 

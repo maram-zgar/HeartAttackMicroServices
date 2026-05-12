@@ -15,5 +15,7 @@ public class WelcomeEvent {
 
     private String email;
     private String firstName;
+    private String lastName;
     private UUID medicalFileId;
+    private String temporaryPassword;
 }

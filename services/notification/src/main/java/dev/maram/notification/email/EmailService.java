@@ -20,6 +20,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final TemplateService templateService;
+    private final PatientTemplateService patientTemplateService;
 
     @Value("${spring.mail.username:noreply@HeartAttackDetectionClinic.com}")
     private String senderEmail;
@@ -29,8 +30,8 @@ public class EmailService {
                 event.getPatientEmail(),
                 "Appointment Created",
                 "Dear " + event.getPatientFirstName() + ",\n\n" +
-                        "Your appointment has been created at " + event.getHospital() +
-                        " on " + event.getDateTime() + ".\n\nThank you."
+                        "Your appointment has been created on " + event.getDateTime()
+                        + ".\n\nThank you."
         );
     }
 
@@ -39,7 +40,7 @@ public class EmailService {
                 event.getPatientEmail(),
                 "Appointment Cancelled",
                 "Dear " + event.getPatientFirstName() + ",\n\n" +
-                        "Your appointment at " + event.getHospital() +
+                        "Your appointment at " +
                         " on " + event.getDateTime() + " has been cancelled.\n\n" +
                         "Please contact us to reschedule."
         );
@@ -50,7 +51,7 @@ public class EmailService {
                 event.getPatientEmail(),
                 "Appointment Updated",
                 "Dear " + event.getPatientFirstName() + ",\n\n" +
-                        "Your appointment at " + event.getHospital() +
+                        "Your appointment at " +
                         " has been rescheduled to " + event.getDateTime() + ".\n\nThank you."
         );
     }
@@ -60,7 +61,7 @@ public class EmailService {
                 event.getPatientEmail(),
                 "Appointment Accepted",
                 "Dear " + event.getPatientFirstName() + ",\n\n" +
-                        "Your appointment at " + event.getHospital() +
+                        "Your appointment at " +
                         " on " + event.getDateTime() + " has been accepted.\n\n" +
                         "Please ensure you are able to attend."
         );
@@ -68,16 +69,8 @@ public class EmailService {
 
     public void sendWelcome(WelcomeEvent event) {
         log.info("sendWelcome called for {} with medicalFileId {}", event.getEmail(), event.getMedicalFileId());
-        sendEmail(
-                event.getEmail(),
-                "Account Creation Succeeded",
-                "Dear " + event.getFirstName() + ",\n\n" +
-                        "Your account has been successfully created.\n\n" +
-                        "Your medical file has been set up and is ready:\n" +
-                        "  Medical File ID: " + event.getMedicalFileId() + "\n\n" +
-                        "Your file is currently empty and will be filled in by your doctor.\n\n" +
-                        "Thank you for joining us."
-        );
+        String html = patientTemplateService.buildPatientWelcome(event);
+        sendEmail(event.getEmail(), "Account Creation Succeeded", html);
     }
 
     public void sendConsultationSummary(String patientEmail, String patientFirstName) {

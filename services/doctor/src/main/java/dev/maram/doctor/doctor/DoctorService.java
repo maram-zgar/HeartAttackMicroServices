@@ -33,7 +33,6 @@ public class DoctorService {
                 .lastName(request.lastName())
                 .email(request.email())
                 .numeroRPPS(request.numeroRPPS())
-                .hospital(request.hospital())
                 .password(passwordEncoder.encode(request.password()))
                 .build();
         return repository.save(doctor).getId();
@@ -79,9 +78,6 @@ public class DoctorService {
         }
         if (StringUtils.isNotBlank(request.email())) {
             doctor.setEmail(request.email());
-        }
-        if (StringUtils.isNotBlank(request.hospital())) {
-            doctor.setHospital(request.hospital());
         }
     }
 

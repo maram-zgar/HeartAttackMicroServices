@@ -26,7 +26,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -45,41 +47,61 @@ public class AuthenticationService {
 
 
 
-    // PATIENT SELF-REGISTRATION
 
     public Mono<RegistrationResponse> registerPatient(RegisterRequest request) {
         return Mono.fromCallable(() -> {
+
+            String temporaryPassword = (request.getPassword() != null && !request.getPassword().isBlank())
+                    ? request.getPassword()
+                    : generateTemporaryPassword();
+
             var user = User.builder()
-                    .firstName(request.getFirstname())
-                    .lastName(request.getLastname())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
                     .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
+                    .password(passwordEncoder.encode(temporaryPassword))
                     .role(Role.PATIENT)
                     .dateOfBirth(request.getDateOfBirth())
+                    .age(request.getAge())
                     .gender(request.getGender())
-                    .phoneNumber(request.getPhoneNumber())
+                    .doctorId(request.getDoctorId())
                     .build();
 
-            var savedUser = repository.save(user);
+            User savedUser = repository.save(user);
+            log.info("PATIENT SAVED TO POSTGRES: {} with ID: {}", savedUser.getEmail(), savedUser.getId());
+
             var accessToken = jwtService.generateToken(savedUser);
             saveUserToken(savedUser, accessToken);
 
             kafkaTemplate.send("patient.registered", PatientRegisteredEvent.builder()
-                    .email(savedUser.getEmail())
+                    .patientId(savedUser.getId())
                     .firstName(savedUser.getFirstName())
                     .lastName(savedUser.getLastName())
+                    .email(savedUser.getEmail())
+                    .temporaryPassword(temporaryPassword)
+                    .dateOfBirth(savedUser.getDateOfBirth())
+                    .gender(savedUser.getGender())
+                    .doctorId(savedUser.getDoctorId())
                     .build());
 
             log.info("Published patient.registered event for {}", savedUser.getEmail());
 
             return RegistrationResponse.builder()
+                    .userId(savedUser.getId())
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
                     .email(user.getEmail())
-                    .message("User registered!")
+                    .message("Patient registered!")
                     .build();
 
         }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private String generateTemporaryPassword() {
+        SecureRandom sr = new SecureRandom();
+        byte[] bytes = new byte[9];
+        sr.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
 
@@ -98,9 +120,7 @@ public class AuthenticationService {
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getInitialPassword()))
                     .role(Role.DOCTOR)
-                    .hospital(request.getHospital())
                     .numeroRPPS(request.getNumeroRPPS())
-                    .isActive(true)
                     .build();
 
             var savedUser = userRepository.save(user);
@@ -173,12 +193,12 @@ public class AuthenticationService {
                     .role(user.getRole())
                     // Doctor fields (null for patients)
                     .numeroRPPS(user.getNumeroRPPS())
-                    .phoneNumber(user.getPhoneNumber())
                     .avatarUrl(user.getAvatarUrl())
-                    .hospital(user.getHospital())
                     // Patient fields (null for doctors)
                     .dateOfBirth(user.getDateOfBirth())
                     .gender(user.getGender())
+                    .age(user.getAge())
+                    .doctorId(user.getDoctorId())
                     .build();
 
 

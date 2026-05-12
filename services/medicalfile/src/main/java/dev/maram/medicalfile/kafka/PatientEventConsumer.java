@@ -27,7 +27,8 @@ public class PatientEventConsumer {
                     event.getPatientId(),
                     event.getFirstName(),
                     event.getLastName(),
-                    event.getEmail()
+                    event.getEmail(),
+                    event.getTemporaryPassword()
             );
         }
     }

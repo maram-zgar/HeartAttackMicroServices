@@ -27,39 +27,6 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-//import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
-//@Configuration
-//@EnableWebSecurity
-//@RequiredArgsConstructor
-//public class SecurityConfiguration {
-//
-//    //private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**"};
-//    private final JwtAuthenticationFilter jwtAuthFilter;
-//    private final AuthenticationProvider authenticationProvider;
-//
-//    // White listing : some endpoints do not require any auth/token (ex: create an account)
-//    // The session state should not be stores (STATELESS) -> ensures that each requests gets authenticated
-//    // The auth provider
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(req ->
-//                        req.requestMatchers("/api/v1/auth/**") // Authorize any request within this list but request auth for all others
-//                                .permitAll()
-//                                .anyRequest()
-//                                .authenticated()
-//                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-//                .authenticationProvider(authenticationProvider)
-//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-//        ;
-//
-//        return http.build();
-//    }
-//}
-
 
 @Configuration
 @EnableWebFluxSecurity

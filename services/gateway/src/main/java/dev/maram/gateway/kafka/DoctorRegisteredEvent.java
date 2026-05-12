@@ -16,6 +16,5 @@ public class DoctorRegisteredEvent {
     private String lastName;
     private String email;
     private String numeroRPPS;
-    private String hospital;
     private String password;
 }
