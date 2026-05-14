@@ -20,6 +20,28 @@ public class ConsultationService {
     private final Neo4jClient neo4jClient;
     private final ConsultationEventProducer producer;
 
+    public Consultation findById(java.util.UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Consultation not found with ID: " + id));
+    }
+
+    @Transactional
+    public Consultation updateConsultation(java.util.UUID id, ConsultationUpdateRequest request) {
+        // 1. Fetch the existing "shell" consultation created by Kafka
+        Consultation consultation = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Consultation not found with ID: " + id));
+
+        // 2. Apply the clinical details provided by the doctor
+        consultation.setNotes(request.getNotes());
+
+        // 3. Save the updated node back to Neo4j / Database
+        Consultation updatedConsultation = repository.save(consultation);
+
+        log.info("Consultation {} updated with clinical details by Doctor", id);
+
+        return updatedConsultation;
+    }
+
     @Transactional
     public void createFromCompletedAppointment(AppointmentCompletedEvent event) {
 

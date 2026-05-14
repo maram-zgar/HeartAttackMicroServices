@@ -2,10 +2,7 @@ package dev.maram.medicalfile.medicalFile;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,5 +25,13 @@ public class MedicalFileController {
             @PathVariable UUID patientId
     ) {
         return ResponseEntity.ok(service.findByPatientId(patientId));
+    }
+
+    @PutMapping("/patient/{patientId}")
+    public ResponseEntity<MedicalFileResponse> updateRisk(
+            @PathVariable UUID patientId,
+            @RequestBody MedicalFileUpdateRequest request
+    ) {
+        return ResponseEntity.ok(service.updateMedicalFile(patientId, request));
     }
 }

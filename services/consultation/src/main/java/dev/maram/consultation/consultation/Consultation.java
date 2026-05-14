@@ -25,4 +25,5 @@ public class Consultation {
     private UUID patientId;
     private UUID doctorId;
     private LocalDate dateDeConsultation;
+    private String notes;
 }
