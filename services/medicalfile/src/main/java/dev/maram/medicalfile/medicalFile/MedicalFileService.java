@@ -101,4 +101,34 @@ public class MedicalFileService {
 
         log.info("Appointment {} linked to Patient {}", event.getAppointmentId(), event.getPatientId());
     }
+
+    @Transactional
+    public void linkConsultationToMedicalFile(dev.maram.medicalfile.kafka.ConsultationCreatedEvent event) {
+        // Find the patient's medical file and link the new consultation to it
+        neo4jClient.query("""
+            MATCH (p:Patient {id: $patientId})-[:POSSEDE]->(m:MedicalFile)
+            MERGE (c:Consultation {id: $consultationId})
+            MERGE (m)-[:CONTIENT]->(c)
+            """)
+                .bind(event.getPatientId().toString()).to("patientId")
+                .bind(event.getConsultationId().toString()).to("consultationId")
+                .run();
+
+        log.info("Successfully linked Consultation {} to Medical File for Patient {}",
+                event.getConsultationId(), event.getPatientId());
+    }
+
+    @Transactional
+    public MedicalFileResponse updateMedicalFile(UUID patientId, MedicalFileUpdateRequest request) {
+        MedicalFile file = repository.findByPatientId(patientId)
+                .orElseThrow(() -> new RuntimeException("Medical file not found"));
+
+        // Update fields
+        file.setRiskLevel(request.getRiskLevel());
+        file.setRiskPercentage(request.getRiskPercentage());
+        file.setLastUpdateDate(LocalDate.now());
+
+        MedicalFile saved = repository.save(file);
+        return mapper.toResponse(saved);
+    }
 }
