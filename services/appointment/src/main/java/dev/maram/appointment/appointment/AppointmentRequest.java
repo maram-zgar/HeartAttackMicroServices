@@ -12,8 +12,11 @@ public record AppointmentRequest(
         UUID patientId,
         String patientEmail,
         String patientFirstName,
+        String patientLastName,
         UUID doctorId,
         @NotNull LocalDateTime dateTime,
-        AppointmentStatus status
+        AppointmentStatus status,
+        AppointmentType appointmentType,
+        int durationMinutes
 ) {
 }

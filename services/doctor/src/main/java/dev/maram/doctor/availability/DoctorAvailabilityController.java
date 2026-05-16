@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/doctors/{doctorId}/availability")
+@RequestMapping("/api/v1/doctors/{doctorId}/availability")
 @RequiredArgsConstructor
 public class DoctorAvailabilityController {
 
