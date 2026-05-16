@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/appointment/services.appointment.main.iml" filepath="$PROJECT_DIR$/.idea/modules/appointment/services.appointment.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/appointment/services.appointment.test.iml" filepath="$PROJECT_DIR$/.idea/modules/appointment/services.appointment.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/config-server/services.config-server.main.iml" filepath="$PROJECT_DIR$/.idea/modules/config-server/services.config-server.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/consultation/services.consultation.main.iml" filepath="$PROJECT_DIR$/.idea/modules/consultation/services.consultation.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/discovery/services.discovery.main.iml" filepath="$PROJECT_DIR$/.idea/modules/discovery/services.discovery.main.iml" />

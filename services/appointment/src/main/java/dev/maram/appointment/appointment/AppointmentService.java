@@ -73,6 +73,8 @@ public class AppointmentService {
                 .patientId(request.patientId())
                 .doctorId(request.doctorId())
                 .dateTime(request.dateTime())
+                .durationMinutes(request.durationMinutes() > 0 ? request.durationMinutes() : 30)
+                .appointmentType(request.appointmentType())
                 .status(AppointmentStatus.PENDING)
                 .build();
 
@@ -95,7 +97,9 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
         appointment.setDateTime(request.dateTime());
-        appointment.setStatus(request.status());
+        appointment.setStatus(AppointmentStatus.PENDING);
+        appointment.setDurationMinutes(request.durationMinutes() > 0 ? request.durationMinutes() : appointment.getDurationMinutes());
+        appointment.setAppointmentType(request.appointmentType());
 
         var saved = repository.save(appointment);
 

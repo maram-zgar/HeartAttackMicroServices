@@ -1,16 +1,15 @@
-#version: '3.8'  # Updated to a more modern version (optional but recommended)
+#version: '3.8'
 services:
   neo4j:
-    image: neo4j:5.13-enterprise  # Still good – pulls latest 5.x
+    image: neo4j:5.13-enterprise
     hostname: neo4j
     container_name: neo4J
     ports:
-      - "7474:7474" # HTTP
-      - "7687:7687" # BOLT
+      - "7474:7474"
+      - "7687:7687"
     environment:
       NEO4J_AUTH: neo4j/password
       NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
-      # NEO4J_db_tx__log__rotation_retention__policy: 100M size
       NEO4J_dbms_security_procedures_unrestricted: apoc.*
       NEO4J_dbms_security_procedures_allowlist: apoc.*
       NEO4J_dbms_security_http__auth__allowlist: /,/browser.*
@@ -29,7 +28,6 @@ services:
     container_name: postgres
     image: postgres
     environment:
-      # POSTGRES_HOST_AUTH_METHOD: trust  # This allows ANY password
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: auth
@@ -39,7 +37,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      microservices-net:
+      - microservices-net
     restart: unless-stopped
 
   mail-dev:
@@ -74,9 +72,28 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+      - zookeeper
+    ports:
+      - "9999:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      DYNAMIC_CONFIG_ENABLED: "true"
     networks:
       - microservices-net
     restart: unless-stopped

@@ -2,7 +2,6 @@ package dev.maram.doctor.doctor;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -47,12 +46,9 @@ public class DoctorController {
 
     @PostMapping("/change-password")
     public Mono<ResponseEntity<Void>> changePassword(
-            @RequestBody @Valid ChangePasswordRequest request,
-            Authentication authentication
+            @RequestBody @Valid ChangePasswordRequest request
     ) {
-        String email = authentication.getName();
-
-        return service.changePassword(request, email)
+        return service.changePassword(request, request.email())
                 .then(Mono.fromCallable(() -> ResponseEntity.accepted().build()));
     }
 
