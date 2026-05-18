@@ -11,6 +11,5 @@ public record DoctorAvailabilityResponse(
         UUID doctorId,
         DayOfWeek dayOfWeek,
         LocalTime startTime,
-        LocalTime endTime,
-        int slotDurationMinutes
+        LocalTime endTime
 ) {}

@@ -38,7 +38,6 @@ public class DoctorAvailabilityService {
                 .dayOfWeek(request.dayOfWeek())
                 .startTime(request.startTime())
                 .endTime(request.endTime())
-                .slotDurationMinutes(request.slotDurationMinutes())
                 .build();
 
         var saved = availabilityRepository.save(availability);
@@ -49,7 +48,6 @@ public class DoctorAvailabilityService {
                 .dayOfWeek(request.dayOfWeek())
                 .startTime(request.startTime())
                 .endTime(request.endTime())
-                .slotDurationMinutes(request.slotDurationMinutes())
                 .action("SET")
                 .build());
 
@@ -83,8 +81,7 @@ public class DoctorAvailabilityService {
                 a.getDoctorId(),
                 a.getDayOfWeek(),
                 a.getStartTime(),
-                a.getEndTime(),
-                a.getSlotDurationMinutes()
+                a.getEndTime()
         );
     }
 }

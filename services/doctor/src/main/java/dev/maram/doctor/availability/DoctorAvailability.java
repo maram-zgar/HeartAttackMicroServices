@@ -29,5 +29,4 @@ public class DoctorAvailability {
 
     private LocalTime endTime;
 
-    private int slotDurationMinutes;   // e.g. 30
 }

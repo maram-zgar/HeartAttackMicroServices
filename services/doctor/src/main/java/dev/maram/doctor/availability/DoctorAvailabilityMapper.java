@@ -11,8 +11,7 @@ public class DoctorAvailabilityMapper {
                 a.getDoctorId(),
                 a.getDayOfWeek(),
                 a.getStartTime(),
-                a.getEndTime(),
-                a.getSlotDurationMinutes()
+                a.getEndTime()
         );
     }
 }

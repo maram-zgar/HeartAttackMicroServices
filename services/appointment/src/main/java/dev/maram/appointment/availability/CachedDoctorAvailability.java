@@ -28,5 +28,4 @@ public class CachedDoctorAvailability {
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
-    private int slotDurationMinutes;
 }

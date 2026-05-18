@@ -46,6 +46,11 @@ public class PatientService {
         }
 
         Patient patient = mapper.toPatient(request);
+
+        if (request.doctorId() != null) {
+            patient.setDoctorId(request.doctorId());
+        }
+
         var saved = repository.save(patient);
         log.info("SAVED PATIENT: {}", saved);
 
@@ -93,6 +98,10 @@ public class PatientService {
         }
         if (StringUtils.isNotBlank(request.email())) {
             patient.setEmail(request.email());
+        }
+
+        if (request.doctorId() != null) {
+            patient.setDoctorId(request.doctorId());
         }
     }
 

@@ -49,39 +49,58 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        // 1. Global Preflight Options (Must be first)
+                        // 1. Preflight
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 2. Public Auth Endpoints
-                        .pathMatchers("/api/v1/auth/authenticate",
+                        // 2. Public auth
+                        .pathMatchers(
+                                "/api/v1/auth/authenticate",
                                 "/api/v1/auth/register",
-                                "/api/v1/auth/refresh-token").permitAll()
+                                "/api/v1/auth/refresh-token"
+                        ).permitAll()
 
-                        // 3. Authenticated Generic Auth Endpoints
+                        // 3. Authenticated auth
                         .pathMatchers("/api/v1/auth/me").authenticated()
                         .pathMatchers(HttpMethod.PATCH, "/api/v1/auth/change-password").authenticated()
 
-                        // 4. Admin Management
+                        // 4. Admin
                         .pathMatchers("/admin/**").hasRole("ADMIN")
 
-                        // 5. Shared Space: Doctor Availability (Specific rules BEFORE broad rules)
-                        // Allow both Patients and Doctors to read availability
-                        .pathMatchers(HttpMethod.GET, "/api/v1/doctors/*/availability").hasAnyRole("DOCTOR", "PATIENT")
-                        // Restrict modifications (POST, DELETE, sub-paths) to DOCTORS only
-                        .pathMatchers("/api/v1/doctors/*/availability", "/api/v1/doctors/*/availability/**").hasRole("DOCTOR")
+                        // 5. Doctor availability — GET open to both, mutations doctor-only
+                        .pathMatchers(HttpMethod.GET, "/api/v1/doctors/*/availability")
+                        .hasAnyRole("DOCTOR", "PATIENT")
+                        .pathMatchers(HttpMethod.POST,   "/api/v1/doctors/*/availability").hasRole("DOCTOR")
+                        .pathMatchers(HttpMethod.DELETE, "/api/v1/doctors/*/availability").hasRole("DOCTOR")
+                        .pathMatchers(HttpMethod.DELETE, "/api/v1/doctors/*/availability/**").hasRole("DOCTOR")
 
-                        // 6. Shared Space: Appointments
-                        .pathMatchers(HttpMethod.GET, "/api/v1/appointments").hasRole("DOCTOR")
-                        .pathMatchers("/api/v1/appointments/**").hasAnyRole("DOCTOR", "PATIENT")
+                        // 6. Doctor read — patients need this to resolve their doctor's name
+                        .pathMatchers(HttpMethod.GET, "/api/v1/doctors/*")
+                        .hasAnyRole("DOCTOR", "PATIENT")
 
-                        // 7. Strict Doctor-Only Space
-                        // Protects GET, POST, PUT, and DELETE for all patient tracks safely
-                        .pathMatchers("/api/v1/patients", "/api/v1/patients/**").hasRole("DOCTOR")
+                        // 7. All other doctor endpoints — doctor only
+                        .pathMatchers("/api/v1/doctors/**").hasRole("DOCTOR")
+
+                        // 8. Available slots — must be BEFORE the broad /appointments/** rule
+                        .pathMatchers(HttpMethod.GET, "/api/v1/appointments/available-slots")
+                        .hasAnyRole("DOCTOR", "PATIENT")
+
+                        // 9. Appointments — both roles
+                        .pathMatchers(HttpMethod.GET,  "/api/v1/appointments")
+                        .hasAnyRole("DOCTOR", "PATIENT")
+                        .pathMatchers(HttpMethod.POST, "/api/v1/appointments")
+                        .hasAnyRole("DOCTOR", "PATIENT")
+                        .pathMatchers("/api/v1/appointments/**")
+                        .hasAnyRole("DOCTOR", "PATIENT")
+
+                        // 10. Medical file — patients can GET their own, doctors get everything
+                        .pathMatchers(HttpMethod.GET, "/api/v1/medicalfiles/patient/*")
+                        .hasAnyRole("DOCTOR", "PATIENT")
                         .pathMatchers("/api/v1/medicalfiles/**").hasRole("DOCTOR")
-                        .pathMatchers("/api/v1/doctors/consultation/complete").hasRole("DOCTOR")
-                        .pathMatchers("/api/v1/doctors/profile/**").hasRole("DOCTOR")
 
-                        // 8. Global Catch-All
+                        // 11. Patients — doctor only
+                        .pathMatchers("/api/v1/patients", "/api/v1/patients/**").hasRole("DOCTOR")
+
+                        // 12. Catch-all
                         .anyExchange().authenticated()
                 )
                 .exceptionHandling(ex -> ex

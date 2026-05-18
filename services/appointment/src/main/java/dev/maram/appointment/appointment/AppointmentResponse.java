@@ -13,7 +13,6 @@ public record AppointmentResponse(
         UUID patientId,
         UUID doctorId,
         LocalDateTime dateTime,
-        int durationMinutes,
         AppointmentType appointmentType,
         AppointmentStatus status
 ) {

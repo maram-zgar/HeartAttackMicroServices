@@ -32,7 +32,6 @@ public class DoctorAvailabilityConsumer {
                     .dayOfWeek(event.getDayOfWeek())
                     .startTime(event.getStartTime())
                     .endTime(event.getEndTime())
-                    .slotDurationMinutes(event.getSlotDurationMinutes())
                     .build();
             cachedAvailabilityRepository.save(cached);
             log.info("Cached availability for doctorId={} on {}", event.getDoctorId(), event.getDayOfWeek());

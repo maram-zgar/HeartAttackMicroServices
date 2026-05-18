@@ -19,6 +19,5 @@ public class DoctorAvailabilityEvent {
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
-    private int slotDurationMinutes;
     private String action; // "SET" or "DELETED"
 }

@@ -73,7 +73,6 @@ public class AppointmentService {
                 .patientId(request.patientId())
                 .doctorId(request.doctorId())
                 .dateTime(request.dateTime())
-                .durationMinutes(request.durationMinutes() > 0 ? request.durationMinutes() : 30)
                 .appointmentType(request.appointmentType())
                 .status(AppointmentStatus.PENDING)
                 .build();
@@ -98,7 +97,6 @@ public class AppointmentService {
 
         appointment.setDateTime(request.dateTime());
         appointment.setStatus(AppointmentStatus.PENDING);
-        appointment.setDurationMinutes(request.durationMinutes() > 0 ? request.durationMinutes() : appointment.getDurationMinutes());
         appointment.setAppointmentType(request.appointmentType());
 
         var saved = repository.save(appointment);
@@ -192,7 +190,7 @@ public class AppointmentService {
 
         while (start.isBefore(end)) {
             allSlots.add(start);
-            start = start.plusMinutes(availability.getSlotDurationMinutes());
+            start = start.plusMinutes(30);
         }
 
         // Get confirmed appointments only

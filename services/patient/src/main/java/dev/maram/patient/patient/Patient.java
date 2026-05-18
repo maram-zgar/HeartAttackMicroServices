@@ -27,5 +27,8 @@ public class Patient {
     @Email(message = "Email must be a valid email address")
     //@Column(unique = true)
     private String email;
+    private String  gender;
+
+    private UUID doctorId;
 }
 

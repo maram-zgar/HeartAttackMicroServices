@@ -16,7 +16,6 @@ public record AppointmentRequest(
         UUID doctorId,
         @NotNull LocalDateTime dateTime,
         AppointmentStatus status,
-        AppointmentType appointmentType,
-        int durationMinutes
+        AppointmentType appointmentType
 ) {
 }

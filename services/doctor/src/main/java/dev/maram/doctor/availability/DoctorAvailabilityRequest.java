@@ -6,6 +6,5 @@ import java.time.LocalTime;
 public record DoctorAvailabilityRequest(
         DayOfWeek dayOfWeek,
         LocalTime startTime,
-        LocalTime endTime,
-        int slotDurationMinutes
+        LocalTime endTime
 ) {}

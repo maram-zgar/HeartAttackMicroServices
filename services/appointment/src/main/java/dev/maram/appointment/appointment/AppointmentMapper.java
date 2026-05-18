@@ -13,7 +13,6 @@ public class AppointmentMapper {
                 .patientId(request.getPatientId())
                 .doctorId(request.getDoctorId())
                 .dateTime(request.getDateTime())
-                .durationMinutes(request.getDurationMinutes())
                 .appointmentType(request.getAppointmentType())
                 .status(request.getStatus())
                 .build();
@@ -28,7 +27,6 @@ public class AppointmentMapper {
                 .patientId(request.patientId())
                 .doctorId(request.doctorId())
                 .dateTime(request.dateTime())
-                .durationMinutes(request.durationMinutes())
                 .appointmentType(request.appointmentType())
                 .status(request.status())
                 .build();

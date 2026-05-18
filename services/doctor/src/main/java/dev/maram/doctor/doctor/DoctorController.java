@@ -52,4 +52,11 @@ public class DoctorController {
                 .then(Mono.fromCallable(() -> ResponseEntity.accepted().build()));
     }
 
+    @GetMapping("/{doctor-id}")
+    public ResponseEntity<DoctorResponse> findById(
+            @PathVariable("doctor-id") UUID doctorId
+    ) {
+        return ResponseEntity.ok(service.findById(doctorId));
+    }
+
 }
