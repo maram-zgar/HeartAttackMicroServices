@@ -70,4 +70,11 @@ public class AppointmentController {
     ) {
         return ResponseEntity.ok(service.getAvailableSlots(doctorId, date));
     }
+
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<AppointmentResponse>> findByPatientId(
+            @PathVariable UUID patientId
+    ) {
+        return ResponseEntity.ok(service.findByPatientId(patientId));
+    }
 }

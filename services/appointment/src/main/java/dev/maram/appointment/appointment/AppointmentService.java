@@ -229,6 +229,13 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
     }
 
+    public List<AppointmentResponse> findByPatientId(UUID patientId) {
+        return repository.findByPatientId(patientId)
+                .stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public void deleteAppointment(UUID id) {
         repository.deleteById(id);
     }

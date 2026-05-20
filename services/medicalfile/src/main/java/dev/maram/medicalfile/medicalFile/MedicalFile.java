@@ -9,6 +9,7 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import java.util.List;
 
 import java.time.LocalDate;
 import java.time.LocalDate;
@@ -32,6 +33,9 @@ public class MedicalFile {
     private LocalDate lastUpdateDate;
     private double riskPercentage;
     private RiskLevel riskLevel;
+
+    @Relationship(type = "CONTIENT", direction = Relationship.Direction.OUTGOING)
+    private List<Consultation> consultations = new ArrayList<>();
 
 //    @Relationship(type = "POSSEDE", direction = Relationship.Direction.INCOMING)
 //    private dev.maram.medicalfile.patient.Patient patient;

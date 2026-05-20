@@ -15,7 +15,8 @@ public class DoctorAvailabilityConsumer {
 
     private final CachedDoctorAvailabilityRepository cachedAvailabilityRepository;
 
-    @KafkaListener(topics = "doctor.availability", groupId = "appointment-service")
+    @KafkaListener(topics = "doctor.availability", groupId = "appointment-service",     containerFactory = "doctorAvailabilityKafkaListenerContainerFactory"
+    )
     @Transactional
     public void consume(DoctorAvailabilityEvent event) {
         log.info("Received doctor.availability event: action={} doctorId={} day={}",

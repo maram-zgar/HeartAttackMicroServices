@@ -47,4 +47,6 @@ public interface AppointmentRepository extends Neo4jRepository<Appointment, UUID
             LocalDate date,
             AppointmentStatus status
     );
+
+    List<Appointment> findByPatientId(UUID patientId);
 }

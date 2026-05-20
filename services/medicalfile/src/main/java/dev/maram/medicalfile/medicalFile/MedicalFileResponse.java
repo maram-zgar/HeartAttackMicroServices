@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -20,5 +21,6 @@ public class MedicalFileResponse {
     private LocalDate lastUpdateDate;
     private double riskPercentage;
     private RiskLevel riskLevel;
+    private List<Consultation> consultations;
     //private List<Recommendation> recommendations;
 }

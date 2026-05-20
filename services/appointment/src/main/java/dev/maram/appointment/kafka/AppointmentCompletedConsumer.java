@@ -14,7 +14,8 @@ public class AppointmentCompletedConsumer {
 
     private final AppointmentRepository repository;
 
-    @KafkaListener(topics = "appointment.completed", groupId = "appointment-service-group")
+    @KafkaListener(topics = "appointment.completed", groupId = "appointment-service-group",         containerFactory = "appointmentCompletedKafkaListenerContainerFactory"
+    )
     public void onConsultationCompleted(AppointmentCompletedEvent event) {
         repository.findById(event.getAppointmentId()).ifPresent(appointment -> {
             appointment.setStatus(AppointmentStatus.COMPLETED);

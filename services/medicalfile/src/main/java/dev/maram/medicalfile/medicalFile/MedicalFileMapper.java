@@ -13,6 +13,7 @@ public class MedicalFileMapper {
                 .lastUpdateDate(file.getLastUpdateDate())
                 .riskPercentage(file.getRiskPercentage())
                 .riskLevel(file.getRiskLevel())
+                .consultations(file.getConsultations())
                 //.recommendations(file.getRecommendations())
                 .build();
     }

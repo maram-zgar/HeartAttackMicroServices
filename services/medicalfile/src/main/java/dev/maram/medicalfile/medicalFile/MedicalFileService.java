@@ -75,7 +75,7 @@ public class MedicalFileService {
     public MedicalFileResponse findByPatientId(UUID patientId) {
         return repository.findByPatientId(patientId)
                 .map(mapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("Medical file not found for patient: " + patientId));
+                .orElse(null);
     }
 
     public List<MedicalFileResponse> findAll() {

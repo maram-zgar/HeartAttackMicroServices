@@ -84,7 +84,8 @@ public class SecurityConfiguration {
                         .pathMatchers(HttpMethod.GET, "/api/v1/appointments/available-slots")
                         .hasAnyRole("DOCTOR", "PATIENT")
 
-                        // 9. Appointments — both roles
+                        // 9. Appointments
+                        .pathMatchers(HttpMethod.GET,"/api/v1/appointments/patient/{patientId}").hasAnyRole("DOCTOR", "PATIENT")
                         .pathMatchers(HttpMethod.GET,  "/api/v1/appointments")
                         .hasAnyRole("DOCTOR", "PATIENT")
                         .pathMatchers(HttpMethod.POST, "/api/v1/appointments")

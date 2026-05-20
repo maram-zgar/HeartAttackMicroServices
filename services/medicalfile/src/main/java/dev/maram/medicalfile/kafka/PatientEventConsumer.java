@@ -19,7 +19,8 @@ public class PatientEventConsumer {
     private final MedicalFileService service;
     private final KafkaTemplate<String, WelcomeEvent> kafkaTemplate;
 
-    @KafkaListener(topics = "patient-events", groupId = "medical-file-group-v2")
+    @KafkaListener(topics = "patient-events", groupId = "medical-file-group-v2",
+            containerFactory = "patientKafkaListenerContainerFactory")
     public void consume(PatientEvent event) {
         log.info("Received patient event: {}", event);
         if ("CREATED".equals(event.getEventType())) {

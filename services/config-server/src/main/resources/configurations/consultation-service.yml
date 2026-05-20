@@ -2,6 +2,11 @@ server:
   port: 8086
 
 spring:
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password
   # Kafka Configuration
   kafka:
     bootstrap-servers: localhost:9092

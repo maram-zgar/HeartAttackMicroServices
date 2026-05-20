@@ -24,7 +24,10 @@ public class MedicalFileController {
     public ResponseEntity<MedicalFileResponse> findByPatientId(
             @PathVariable UUID patientId
     ) {
-        return ResponseEntity.ok(service.findByPatientId(patientId));
+        MedicalFileResponse response = service.findByPatientId(patientId);
+        return response != null
+                ? ResponseEntity.ok(response)
+                : ResponseEntity.noContent().build();
     }
 
     @PutMapping("/patient/{patientId}")

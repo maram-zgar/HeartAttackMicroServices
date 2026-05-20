@@ -13,7 +13,10 @@ public class ConsultationCreatedConsumer {
 
     private final MedicalFileService medicalFileService;
 
-    @KafkaListener(topics = "consultation.created", groupId = "medical-file-group")
+    @KafkaListener(topics = "consultation.created", groupId = "medical-file-group",
+            containerFactory = "consultationKafkaListenerContainerFactory", properties = {
+            "spring.json.value.default.type=dev.maram.medicalfile.kafka.ConsultationCreatedEvent"
+    })
     public void consumeConsultationCreated(ConsultationCreatedEvent event) {
         log.info("Received ConsultationCreatedEvent for consultationId={}", event.getConsultationId());
         medicalFileService.linkConsultationToMedicalFile(event);
